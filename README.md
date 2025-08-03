@@ -22,10 +22,10 @@ This  builds the foundation for further analysis and visualization with SQL and 
 
 ```
 depression-prevalence-project/
-├── where_to_find_the_data.md    # Describes where and how to get the data
+├── README.md
 ├── prevalence_analysis.Rmd      # RMarkdown with full workflow
 ├── prevalence_analysis.html     # Rendered HTML report
-├── README.md
+├── where_to_find_the_data.md    # Describes where and how to get the data
 
 ```
 
