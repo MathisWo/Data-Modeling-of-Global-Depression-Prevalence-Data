@@ -1,0 +1,147 @@
+---
+title: "Data Modeling of Global Depression Prevalence Data"
+author: "MathisWo"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+# 🧹 1. Load and Clean the Raw Dataset
+
+Data Source:
+Global Burden of Disease Collaborative Network.
+Global Burden of Disease Study 2021 (GBD 2021) Results.
+Seattle, United States: Institute for Health Metrics and Evaluation (IHME), 2022.
+Available from https://vizhub.healthdata.org/gbd-results/.
+
+Load and clean the original depression prevalence dataset.
+
+```{r load-clean, message = FALSE}
+
+# Load CSV
+data_raw <- read_csv("IHME-GBD_2021_DATA-dd81f9d8-1.csv")
+
+# renaming variables, filtering for percent prevalence, selecting relevant variables
+data_clean <- data_raw %>%
+  rename(
+    country_id = location_id,
+    country = location_name,
+    sex = sex_name,
+    age = age_name,
+    metric = metric_name,
+    prevalence = val
+  ) %>%
+  filter(metric == "Prozent") %>%
+  select(country_id, country, year, sex, age, prevalence) %>%
+  arrange(country)
+
+```
+
+# 🌍 2. Create Dimension Tables
+
+## 2.1 Country Dimension Table
+
+```{r country-dim}
+
+# creating dimension table for country, sorted alphabetically
+country_dim <- data_clean %>%
+  distinct(country) %>%
+  arrange(country) %>%
+  mutate(country_id = row_number()) %>%
+  relocate(country_id)
+
+write_csv(country_dim, "country_dim.csv") # writing .csv file for country dimension table
+
+```
+
+## 2.2 Year Dimension Table
+
+```{r year-dim}
+
+# creating dimension table for year
+year_dim <- data_clean %>%
+  distinct(year) %>%
+  arrange(year) %>%
+  mutate(year_id = row_number()) %>%
+  relocate(year_id)
+
+write_csv(year_dim, "year_dim.csv") # writing .csv file for year dimension table
+
+```
+
+# 📊 3. Create Fact Table
+
+Join the cleaned dataset with the dimension tables to create a structured fact table.
+
+```{r fact-table}
+
+# creating fact table for prevalence data
+df_fact <- data_clean %>%
+  select(-country_id) %>%  # dropping old country_id
+  left_join(country_dim, by = "country") %>%
+  left_join(year_dim, by = "year") %>%
+  mutate(prevalence_id = row_number()) %>% # creating new id for primary key in fact table
+  relocate(prevalence_id) %>%
+  select(-sex, -age, -country, -year) # dropping redundant or irrelevant variables
+
+write_csv(df_fact, "df_fact.csv") # writing .csv file for fact table
+
+```
+
+# 🐘 4. SQL Table Setup in PostgreSQL (via pgAdmin)
+
+Create tables in PostgreSQL with appropriate primary and foreign keys.
+
+**Run this code in pgAdmin:**
+
+```sql
+-- Country Dimension Table
+CREATE TABLE country_dim (
+    country_id INT PRIMARY KEY,
+    country TEXT UNIQUE NOT NULL
+);
+
+
+-- Year Dimension Table
+CREATE TABLE year_dim (
+    year_id INT PRIMARY KEY,
+    year INT UNIQUE NOT NULL
+);
+
+
+-- Fact Table
+CREATE TABLE depression_fact (
+  prevalence_id SERIAL PRIMARY KEY,
+  prevalence NUMERIC,
+	country_id INT REFERENCES country_dim(country_id),
+	year_id INT REFERENCES year_dim(year_id)
+);
+```
+![Database Diagram](QuickDBD-Free Diagram.png)
+
+
+# 📥 5. Import Data to PostgreSQL via pgAdmin interface
+
+Follow these steps:
+
+1. 🖱️ Right-click each table and click on **Import/Export Data...**
+
+2. 📂 Choose the matching CSV file
+
+3. ✅ Go to Options and make sure header is checked and correct delimiter is used
+
+4. 🔁 Repeat for all tables: 'country_dim', 'year_dim', 'prevalence_fact'
+
+# ✅ Summary
+
+- Loaded and cleaned real-world mental health data
+- Structured SQL database using a dimensional model (star schema)
+- Star schema can be extended, e.g. by adding a region/continent dimension table in addition to the country dimension table or by creating dimension tables for sex and age groups (if data is available)
+- Imported data into PostgreSQL for analysis
+- Foundation for further visualizations or SQL analytics
+
+
