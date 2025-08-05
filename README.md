@@ -20,6 +20,7 @@ This  builds the foundation for further analysis and visualization with SQL and 
 
 ## 📁 Repository Structure
 
+```
 📂 docs/
 └── 📄prevalence_analysis.html   # HTML report
 
@@ -28,7 +29,7 @@ This  builds the foundation for further analysis and visualization with SQL and 
 📄prevalence_analysis.Rmd      # RMarkdown with full workflow
 
 📄where_to_find_the_data.md    # Describes where and how to get the data
-
+```
 
 ---
 
