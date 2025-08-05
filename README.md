@@ -20,13 +20,12 @@ This  builds the foundation for further analysis and visualization with SQL and 
 
 ## 📁 Repository Structure
 
-Data-Modeling-of-Global-Depression-Prevalence-Data/
+📂 docs/
+└── 📄prevalence_analysis.html   # HTML report
 
 📄README.md
 
 📄prevalence_analysis.Rmd      # RMarkdown with full workflow
-
-📄prevalence_analysis.html     # Rendered HTML report
 
 📄where_to_find_the_data.md    # Describes where and how to get the data
 
