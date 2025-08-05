@@ -4,6 +4,8 @@ This project models a small database for global depression prevalence data using
 The goal is to structure and clean the data with R and create a dimensional data model with PostgresSQL.
 This  builds the foundation for further analysis and visualization with SQL and R.
 
+Here is a link to the [rendered html report](https://mathiswo.github.io/Data-Modeling-of-Global-Depression-Prevalence-Data/depression_prevalence_data_model.html).
+
 ---
 
 ## 🧠 Project Summary
